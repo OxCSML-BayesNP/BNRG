@@ -1,3 +1,4 @@
+*.mat
 *.pyc
 *.so
 *.pkl
