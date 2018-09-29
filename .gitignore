@@ -6,7 +6,3 @@
 *.txt
 **/results/
 .DS_store
-./ignrg/utils
-./ocignrg/utils
-./gignrg/utils
-./data/utils

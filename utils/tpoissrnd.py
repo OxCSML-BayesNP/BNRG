@@ -1,4 +1,5 @@
-from defs import *
+import numpy as np
+import numpy.random as npr
 from scipy.stats import poisson
 
 def tpoissrnd(lam):
@@ -7,5 +8,6 @@ def tpoissrnd(lam):
     if np.any(ind):
         n_ = sum(ind)
         lam_ = lam[ind]
-        x[ind] = poisson.ppf(exp(-lam_) + npr.rand(n_)*(1-exp(-lam_)), lam_)
+        x[ind] = poisson.ppf(np.exp(-lam_) \
+                + npr.rand(n_)*(1-np.exp(-lam_)), lam_)
     return x

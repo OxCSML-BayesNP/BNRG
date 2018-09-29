@@ -1,12 +1,12 @@
 import numpy as np
+from parse import parse_raw
 from utils.plots import *
 import pickle
-from scipy.sparse import csr_matrix
 
 node_to_comm = {}
 comm_to_nodes = {}
 csizes = []
-with open('com-dblp.top5000.cmty.txt', 'r') as  f:
+with open('data/com-dblp.top5000.cmty.txt', 'r') as  f:
     for i, line in enumerate(f):
         nodes = [int(l) for l in line.split()]
         nodes = nodes[:len(nodes)/5+1]
@@ -20,7 +20,7 @@ relabeled = {}
 for i, k in enumerate(top_comms):
     relabeled[k] = i
 
-raw = np.loadtxt('com-dblp.ungraph.txt', dtype=int)
+raw = np.loadtxt('data/com-dblp.ungraph.txt', dtype=int)
 filtered = []
 for r, c in raw:
     k1 = node_to_comm.get(r, -1)
@@ -36,33 +36,14 @@ for i in range(n):
     filtered[filtered==nodes[i]] = i
     labels[i] = relabeled[node_to_comm[nodes[i]]]
 
-np.savetxt('dblp.txt', filtered, fmt='%d')
-np.savetxt('dblp_labels.txt', labels, fmt='%d')
-
-graph = {}
-graph['n'] = n
-row = filtered[:,0]
-col = filtered[:,1]
-graph['i'] = row
-graph['j'] = col
+graph, _ = parse_raw(filtered)
 graph['labels'] = labels
-graph['deg'] = np.zeros(n, dtype=int)
-for (i, j) in zip(row, col):
-    graph['deg'][i] += 1
-    graph['deg'][j] += 1
 
-print 'Number of nodes: %d' % n
-print 'Number of edges: %d' % len(row)
-
-plt.figure()
-plot_degree(graph['deg'])
-
-plt.figure()
-G = csr_matrix((np.ones(len(row)), (row, col)), shape=[n,n], dtype=int)
-G = G + G.T
-order = np.argsort(labels)
-plt.spy(G[order][:,order], markersize=0.1)
+plt.figure('dblp degree')
+plot_degree(graph['deg'], spec='bo-')
+plt.figure('dblp communities')
+plot_sorted_adj(graph, graph['labels'])
 plt.show()
 
-with open('dblp.pkl', 'w') as f:
+with open('data/dblp.pkl', 'wb') as f:
     pickle.dump(graph, f)

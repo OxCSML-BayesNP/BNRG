@@ -2,7 +2,6 @@
 import numpy as np
 
 def ecdf(sample):
-
     # convert sample to a numpy array, if it isn't already
     sample = np.atleast_1d(sample)
 
@@ -28,7 +27,7 @@ def fill_ecdf(quantiles, cumprob):
         filled_cumprob[i] = cumprob[pointer]
     return filled_quantiles, filled_cumprob
 
-def compute_ks(deg1, deg2, normalize=False):
+def compute_ks(deg1, deg2, reweighted=True):
     q1, p1 = ecdf(deg1)
     q1, p1 = fill_ecdf(q1, p1)
     q2, p2 = ecdf(deg2)
@@ -38,7 +37,7 @@ def compute_ks(deg1, deg2, normalize=False):
     ub = min(q1[-1], q2[-1])
     p1 = p1[np.logical_and(q1>=lb, q1<=ub)]
     p2 = p2[np.logical_and(q2>=lb, q2<=ub)]
-    if normalize:
+    if reweighted:
         norm = np.sqrt(p2*(1-p2))
         ind = norm > 0
         D = abs(p1[ind]-p2[ind])/norm[ind]

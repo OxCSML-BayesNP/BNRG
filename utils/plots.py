@@ -1,6 +1,6 @@
-from defs import *
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import rc, rcParams
 from scipy.stats.mstats import mquantiles
 from scipy.sparse import csr_matrix
 
@@ -89,24 +89,24 @@ def plot_degree_CI(**kwargs):
         if label is not None:
             ax.legend(fontsize=fontsize)
 
-def plot_sorted_adj(graph, wV):
+def plot_sorted_adj(graph, labels):
     G = csr_matrix((np.ones(len(graph['i'])), (graph['i'], graph['j'])),
             shape=[graph['n'], graph['n']], dtype=int)
     G = G + G.T
-    labels = np.argmax(wV, 1)
-    n, C = wV.shape
-    order = np.zeros(0, dtype=int)
-    bdrs = []
-    sz = 0
-    for c in range(C):
-        ind = np.arange(n)[labels==c]
-        vec = wV[ind,c]
-        suborder = np.argsort(-vec)
-        order = np.append(order, ind[suborder])
-        bdrs.append(sz + len(vec))
-        sz += len(vec)
-
+    order = np.argsort(labels)
     plt.spy(G[order][:,order], markersize=1.0)
-    for bdr in bdrs:
-        plt.axvline(x=bdr, color='k', linewidth=3.0)
-        plt.axhline(y=bdr, color='k', linewidth=3.0)
+
+   # order = np.zeros(0, dtype=int)
+   # bdrs = []
+   # sz = 0
+   # for k in range(c):
+   #     ind = np.arange(n)[labels==k]
+   #     vec = U[ind,k]
+   #     suborder = np.argsort(-vec)
+   #     order = np.append(order, ind[suborder])
+   #     bdrs.append(sz + len(vec))
+   #     sz += len(vec)
+
+    #for bdr in bdrs:
+    #    plt.axvline(x=bdr, color='k', linewidth=3.0)
+    #    plt.axhline(y=bdr, color='k', linewidth=3.0)
