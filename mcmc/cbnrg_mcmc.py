@@ -43,7 +43,7 @@ def run_mcmc(graph, model, n_samples, burn_in=None, thin=10,
         # sample hV
         f = lambda hV: (-model.log_joint(graph, M, hw, hV, hV_only=True))
         gf = lambda hV: (-model.log_joint_grad(graph, M, hw, hV, hV_only=True))
-        hV = hmc_step(hV, f, gf, eps, L)
+        hV = hmc_step(hV, f, gf, 10*eps, L)
         V = model.phV.transform(hV)
 
         # sample M
