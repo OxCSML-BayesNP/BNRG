@@ -2,7 +2,7 @@ from model.defs import *
 
 # hx -> z = sigmoid(hx) -> x ~ dirichlet(gam)
 class TransformedDir(object):
-    def __init__(self, c, gam0=1e-2):
+    def __init__(self, c, gam0=1.0):
         self.gam = gam0*np.ones(c)
         self.hgam = log(self.gam)
 

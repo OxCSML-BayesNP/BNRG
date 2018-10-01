@@ -6,6 +6,7 @@ def run_mcmc(graph, model, n_samples, burn_in=None, thin=10,
         eps=1e-2, L=20, disp_freq=100, logfile=None):
 
     n = graph['n']
+    model.phw.__init__(graph)
     hw, w = model.phw.sample(n)
     m = model.sample_m(graph, w)
     burn_in = n_samples/4 if burn_in else burn_in
@@ -33,7 +34,7 @@ def run_mcmc(graph, model, n_samples, burn_in=None, thin=10,
             model.phw.save_params(chain)
             pred_degree = model.sample_graph(model.phw.sample(n)[1])['deg']
             chain['pred_degree'].append(pred_degree)
-            chain['rks'].append(compute_ks(pred_degree, graph['deg']))
+            chain['rks'].append(compute_ks(graph['deg'], pred_degree))
 
         if t%disp_freq == 0:
             line = 'iter {}, log joint {:.4f}, '.format(
