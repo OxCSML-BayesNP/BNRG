@@ -6,6 +6,5 @@
 *.pickle
 *.txt
 **/results/
-./dirty
-./dirty/*
+dirty/
 .DS_store
