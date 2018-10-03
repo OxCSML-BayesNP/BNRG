@@ -1,8 +1,11 @@
 *.mat
+*.pdf
 *.pyc
 *.so
 *.pkl
 *.pickle
 *.txt
 **/results/
+./dirty
+./dirty/*
 .DS_store

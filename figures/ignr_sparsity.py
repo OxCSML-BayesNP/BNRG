@@ -6,7 +6,7 @@ from matplotlib import rc
 ns = np.arange(1000, 10001, 1000)
 alphas = [1.4, 2.0, 2.6]
 betas = [1.0, 2.0]
-emp_specs = ['bo-', 'rs-', 'gv-']
+emp_specs = ['bo', 'rs', 'gv']
 thr_specs = ['b--', 'r--', 'g--']
 rc('font', family='Dejavu Sans')
 rc('text', usetex=True)
@@ -35,4 +35,4 @@ for i, beta in enumerate(betas):
     axarr[i].set_aspect((x1-x0)/(y1-y0))
     axarr[i].legend(fontsize=18)
 plt.show()
-fig.savefig('figures/ignrg_sparsity.pdf', dpi=500, bbox_inches='tight', pad_inches=0)
+fig.savefig('figures/ignr_sparsity.pdf', dpi=500, bbox_inches='tight', pad_inches=0)

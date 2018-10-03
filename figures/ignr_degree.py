@@ -28,11 +28,10 @@ def plot_theory_degree(alpha, beta, **kwargs):
         if label is not None:
             ax.legend(fontsize=fontsize)
 
-n = 10000
-phw = TransformedIG()
+n = 50000
 alphas = [1.4, 2.0, 2.6]
 betas = [1.0, 2.0]
-emp_specs = ['bo-', 'rs-', 'gv-']
+emp_specs = ['bo', 'rs', 'gv']
 thr_specs = ['b--', 'r--', 'g--']
 rc('font', family='Dejavu Sans')
 rc('text', usetex=True)
@@ -41,7 +40,7 @@ for i, beta in enumerate(betas):
     axarr[i].set_title(r'$\beta=$%.1f' % beta, fontsize=25)
     for j, alpha in enumerate(alphas):
         print 'processing alpha %f, beta %f...' % (alpha, beta)
-        _, w = phw.sample_(alpha, beta, n)
+        _, w = TransformedIG.sample_(alpha, beta, n)
         graph = BNRG.sample_graph(w)
         deg = graph['deg']
         label = r'$\alpha=$%.1f' % alpha
@@ -56,4 +55,4 @@ for i, beta in enumerate(betas):
     y0, y1 = axarr[i].get_ylim()
     axarr[i].set_aspect((log(x1)-log(x0))/(log(y1)-log(y0)))
 plt.show()
-fig.savefig('figures/ignrg_degree.pdf', dpi=500, bbox_inches='tight', pad_inches=0)
+fig.savefig('figures/ignr_degree.pdf', dpi=500, bbox_inches='tight', pad_inches=0)

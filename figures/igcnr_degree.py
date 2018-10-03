@@ -29,13 +29,12 @@ def plot_theory_degree(alpha, beta, **kwargs):
         if label is not None:
             ax.legend(fontsize=fontsize)
 
-n = 10000
-c = 10
-phw = TransformedIG()
-_, V = TransformedDir.sample_(0.1*np.ones(c), n)
+n = 50000
+c = 5
+gam = 0.1*np.ones(c)
 alphas = [1.4, 2.0, 2.6]
 betas = [1.0, 2.0]
-emp_specs = ['bo-', 'rs-', 'gv-']
+emp_specs = ['bo', 'rs', 'gv']
 thr_specs = ['b--', 'r--', 'g--']
 rc('font', family='Dejavu Sans')
 rc('text', usetex=True)
@@ -44,7 +43,8 @@ for i, beta in enumerate(betas):
     axarr[i].set_title(r'$\beta=$%.1f' % beta, fontsize=25)
     for j, alpha in enumerate(alphas):
         print 'processing alpha %f, beta %f...' % (alpha, beta)
-        _, w = phw.sample_(alpha, beta, n)
+        _, w = TransformedIG.sample_(alpha, beta, n)
+        _, V = TransformedDir.sample_(gam, n)
         graph = CBNRG.sample_graph(w, V)
         deg = graph['deg']
         label = r'$\alpha=$%.1f' % alpha
@@ -59,4 +59,4 @@ for i, beta in enumerate(betas):
     y0, y1 = axarr[i].get_ylim()
     axarr[i].set_aspect((log(x1)-log(x0))/(log(y1)-log(y0)))
 plt.show()
-fig.savefig('figures/igcnrg_degree.pdf', dpi=500, bbox_inches='tight', pad_inches=0)
+fig.savefig('figures/igcnr_degree.pdf', dpi=500, bbox_inches='tight', pad_inches=0)

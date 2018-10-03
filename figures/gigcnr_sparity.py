@@ -1,6 +1,7 @@
 from utils.plots import *
 from model.transformed_gig import TransformedGIG
-from model.bnrg import BNRG
+from model.transformed_dir import TransformedDir
+from model.cbnrg2 import CBNRG
 from matplotlib import rc
 from scipy.special import kv
 
@@ -8,7 +9,9 @@ ns = np.arange(1000, 10001, 1000)
 nu_list = [-0.5, -1.0]
 a_list = [1e-2, 1e-1, 1.0]
 b = 2.0
-emp_specs = ['bo-', 'rs-', 'gv-']
+c = 4
+gam = 0.1*np.ones(c)
+emp_specs = ['bo', 'rs', 'gv']
 thr_specs = ['b--', 'r--', 'g--']
 rc('font', family='Dejavu Sans')
 rc('text', usetex=True)
@@ -21,8 +24,9 @@ for i,nu in enumerate(nu_list):
         E = []
         EE = []
         for n in ns:
-            w = TransformedGIG.sample_(nu, a, b, n)
-            graph = BNRG.sample_graph(w)
+            _, w = TransformedGIG.sample_(nu, a, b, n)
+            _, V = TransformedDir.sample_(gam, n)
+            graph = CBNRG.sample_graph(w, V)
             E.append(graph['n_edges'])
             EE.append(0.5*n*np.sqrt(b)*kv(nu+1, np.sqrt(a*b)) \
                     /(np.sqrt(a)*kv(nu, np.sqrt(a*b))))
@@ -38,4 +42,4 @@ for i,nu in enumerate(nu_list):
     axarr[i].set_aspect((x1-x0)/(y1-y0))
     axarr[i].legend(fontsize=18)
 plt.show()
-fig.savefig('figures/gignrg_sparsity.pdf', dpi=500, bbox_inches='tight', pad_inches=0)
+fig.savefig('figures/gigcnr_sparsity.pdf', dpi=500, bbox_inches='tight', pad_inches=0)

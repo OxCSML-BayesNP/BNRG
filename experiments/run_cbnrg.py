@@ -10,13 +10,13 @@ from utils.clustering_accuracy import clustering_accuracy
 import argparse
 import os
 import pickle
+from scipy.stats.mstats import mquantiles
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data', type=str, default=None)
 parser.add_argument('--c', type=int, default=4)
 parser.add_argument('--prior', type=str, default='IG')
 parser.add_argument('--n_chains', type=int, default=1)
-#parser.add_argument('--n_init_samples', type=int, default=0)
 parser.add_argument('--burn_in', type=int, default=None)
 parser.add_argument('--n_samples', type=int, default=5000)
 parser.add_argument('--thin', type=int, default=10)
@@ -37,7 +37,6 @@ elif args.prior == 'GIG':
     phw = TransformedGIG(graph=graph)
 else:
     raise ValueError('Invalid prior {}'.format(args.prior))
-init_model = BNRG(phw)
 phV = TransformedDir(args.c)
 model = CBNRG(phw, phV)
 
@@ -48,19 +47,6 @@ def train():
 
     chains = []
     for i in range(1, args.n_chains+1):
-
-        #if args.n_init_samples > 0:
-        #    # initialize by running BNRG
-        #    line = 'initializing by running BNRG for chain {}'.format(i)
-        #    print line
-        #    logfile.write(line+'\n')
-        #    init_chain = bnrg_mcmc.run_mcmc(graph, init_model,
-        #            args.n_init_samples, thin=args.thin, logfile=logfile)
-        #    w_init = init_chain['w_est']
-        #    model.phw.init_from_chain(init_chain)
-        #else:
-        #    w_init = None
-
         line = 'running chain {}'.format(i)
         print line
         logfile.write(line+'\n')
@@ -96,6 +82,11 @@ def show(plot=True):
             np.mean(results['rks']), np.std(results['rks']))
     print 'clustering accuracy {:.4f}'.format(
             clustering_accuracy(results['labels'], graph['labels']))
+    keys = ['alpha', 'beta'] if args.prior == 'IG' else \
+            ['nu', 'a', 'b']
+    for key in keys:
+        qnts = mquantiles(results[key], [0.025, 0.975], alphap=0.5, betap=0.5)
+        print '{}: {}, {}'.format(key, qnts[0], qnts[1])
 
     if plot:
         fig = plt.figure('pred_degree')
@@ -108,8 +99,18 @@ def show(plot=True):
         plt.legend(fontsize=20)
         plt.tight_layout()
 
+        i = np.argmax(results['max_lj'])
+        w = results['w_est'][i]
+        V = results['V_est'][i]
+        U = w[:,None]*V/(w.sum()*V.sum(0)/V.shape[0])
+
         fig = plt.figure('sorted_adj')
-        plot_sorted_adj(graph, results['labels'])
+        plot_sorted_adj(graph, results['labels'], U=U)
+        plt.tight_layout()
+        name = 'ignr_' if args.prior == 'IG' else 'gignr_'
+        name += args.data +'.pdf'
+        plt.savefig(os.path.join('figures', name),
+                bbox_inches='tight', pad_inches=0)
         plt.show()
 
 if __name__=='__main__':

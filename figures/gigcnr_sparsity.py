@@ -1,33 +1,36 @@
 from utils.plots import *
-from model.transformed_ig import TransformedIG
+from model.transformed_gig import TransformedGIG
 from model.transformed_dir import TransformedDir
-from model.cbnrg2 import CBNRG
+from model.cbnrg import CBNRG
 from matplotlib import rc
+from scipy.special import kv
 
 ns = np.arange(1000, 10001, 1000)
-alphas = [1.4, 2.0, 2.6]
-betas = [1.0, 2.0]
-c = 4
+c = 5
 gam = 0.1*np.ones(c)
-emp_specs = ['bo-', 'rs-', 'gv-']
+nu_list = [-0.5, -1.0]
+a_list = [1e-2, 1e-1, 1.0]
+b = 2.0
+emp_specs = ['bo', 'rs', 'gv']
 thr_specs = ['b--', 'r--', 'g--']
 rc('font', family='Dejavu Sans')
 rc('text', usetex=True)
 
 fig, axarr = plt.subplots(1, 2)
-for i, beta in enumerate(betas):
-    axarr[i].set_title(r'$\beta=$%.1f' % beta, fontsize=25)
-    for j, alpha in enumerate(alphas):
-        print 'processing alpha %f, beta %f...' % (alpha, beta)
+for i,nu in enumerate(nu_list):
+    axarr[i].set_title(r'$\nu=$%.1f' % nu, fontsize=25)
+    for j, a in enumerate(a_list):
+        print 'processing nu %f, a %f...' % (nu, a)
         E = []
         EE = []
         for n in ns:
-            _, w = TransformedIG.sample_(alpha, beta, n)
+            _, w = TransformedGIG.sample_(nu, a, b, n)
             _, V = TransformedDir.sample_(gam, n)
             graph = CBNRG.sample_graph(w, V)
             E.append(graph['n_edges'])
-            EE.append(0.5*n*beta/(alpha-1))
-        label = r'$\alpha=$%.1f' % alpha
+            EE.append(0.5*n*np.sqrt(b)*kv(nu+1, np.sqrt(a*b)) \
+                    /(np.sqrt(a)*kv(nu, np.sqrt(a*b))))
+        label = r'$a=$%.2f' % a
         axarr[i].plot(ns, E, emp_specs[j], label=label)
         axarr[i].plot(ns, EE, thr_specs[j])
         axarr[i].set_xlabel(r'Number of nodes', fontsize=18)
@@ -39,4 +42,4 @@ for i, beta in enumerate(betas):
     axarr[i].set_aspect((x1-x0)/(y1-y0))
     axarr[i].legend(fontsize=18)
 plt.show()
-fig.savefig('figures/igcnrg_sparsity.pdf', dpi=500, bbox_inches='tight', pad_inches=0)
+fig.savefig('figures/gigcnr_sparsity.pdf', dpi=500, bbox_inches='tight', pad_inches=0)

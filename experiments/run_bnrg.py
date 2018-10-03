@@ -6,6 +6,7 @@ from utils.plots import *
 import argparse
 import os
 import pickle
+from scipy.stats.mstats import mquantiles
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data', type=str, default=None)
@@ -61,6 +62,12 @@ def show():
         results = pickle.load(f)
     print 'average reweighted KS statistics: {:.4f} ({:.4f})'.format(
             np.mean(results['rks']), np.std(results['rks']))
+    keys = ['alpha', 'beta'] if args.prior == 'IG' else \
+            ['nu', 'a', 'b']
+    for key in keys:
+        qnts = mquantiles(results[key], [0.025, 0.975], alphap=0.5, betap=0.5)
+        print '{}: {:.2f}, {:.2f}'.format(key, qnts[0], qnts[1])
+
     if args.plot:
         fig = plt.figure('pred_degree')
         plot_degree_CI(precomputed=results['pred_degree_CI'], label=r'pred')

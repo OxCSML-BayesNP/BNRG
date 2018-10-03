@@ -89,24 +89,29 @@ def plot_degree_CI(**kwargs):
         if label is not None:
             ax.legend(fontsize=fontsize)
 
-def plot_sorted_adj(graph, labels):
+def plot_sorted_adj(graph, labels, U=None):
     G = csr_matrix((np.ones(len(graph['i'])), (graph['i'], graph['j'])),
             shape=[graph['n'], graph['n']], dtype=int)
     G = G + G.T
-    order = np.argsort(labels)
-    plt.spy(G[order][:,order], markersize=1.0)
+    if U is None:
+        order = np.argsort(labels)
+        plt.spy(G[order][:,order], markersize=1.0)
 
-   # order = np.zeros(0, dtype=int)
-   # bdrs = []
-   # sz = 0
-   # for k in range(c):
-   #     ind = np.arange(n)[labels==k]
-   #     vec = U[ind,k]
-   #     suborder = np.argsort(-vec)
-   #     order = np.append(order, ind[suborder])
-   #     bdrs.append(sz + len(vec))
-   #     sz += len(vec)
+    else:
+        n = len(labels)
+        c = len(np.unique(labels))
+        order = np.zeros(0, dtype=int)
+        bdrs = []
+        sz = 0
+        for k in range(c):
+            ind = np.arange(n)[labels==k]
+            vec = U[ind,k]
+            suborder = np.argsort(-vec)
+            order = np.append(order, ind[suborder])
+            bdrs.append(sz + len(vec))
+            sz += len(vec)
 
-    #for bdr in bdrs:
-    #    plt.axvline(x=bdr, color='k', linewidth=3.0)
-    #    plt.axhline(y=bdr, color='k', linewidth=3.0)
+        plt.spy(G[order][:,order], markersize=1.0)
+        for bdr in bdrs:
+            plt.axvline(x=bdr, color='k', linewidth=3.0)
+            plt.axhline(y=bdr, color='k', linewidth=3.0)

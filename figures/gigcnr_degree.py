@@ -1,7 +1,8 @@
 from utils.plots import *
 from model.defs import *
 from model.transformed_gig import TransformedGIG
-from model.bnrg import BNRG
+from model.transformed_dir import TransformedDir
+from model.cbnrg import CBNRG
 from matplotlib import rc, rcParams
 from scipy.special import kv
 
@@ -33,24 +34,26 @@ def plot_theory_degree(nu, a, b, **kwargs):
         if label is not None:
             ax.legend(fontsize=fontsize)
 
-n = 10000
+n = 50000
+c = 5
 nu_list = [-0.5, -1.0]
 a_list = [1e-2, 1e-1, 1.0]
 b = 2.0
-emp_specs = ['bo-', 'rs-', 'gv-']
+emp_specs = ['bo', 'rs', 'gv']
 thr_specs = ['b--', 'r--', 'g--']
 rc('font', family='Dejavu Sans')
 rc('text', usetex=True)
 fig, axarr = plt.subplots(1, 2)
 phw = TransformedGIG()
+_, V = TransformedDir.sample_(0.1*np.ones(c), n)
 for i, nu in enumerate(nu_list):
     axarr[i].set_title(r'$\nu=$%.1f' % nu, fontsize=25)
     for j, a in enumerate(a_list):
         print 'processing nu %f, a %f...' % (nu, a)
         _, w = phw.sample_(nu, a, b, n)
-        deg = BNRG.sample_graph(w)['deg']
+        deg = CBNRG.sample_graph(w, V)['deg']
         label = r'$a=$%.2f' % a
-        _, x = plot_degree(deg, label=label, spec=emp_specs[j], ax=axarr[i], step=0.5)
+        _, x = plot_degree(deg, label=label, spec=emp_specs[j], ax=axarr[i])
         plot_theory_degree(nu, a, b, spec=thr_specs[j], ax=axarr[i],
             xloglim=log(x[-1])/log(2))
         axarr[i].set_xlabel(r'Degree', fontsize=18)
@@ -61,4 +64,4 @@ for i, nu in enumerate(nu_list):
     y0, y1 = axarr[i].get_ylim()
     axarr[i].set_aspect((log(x1)-log(x0))/(log(y1)-log(y0)))
 plt.show()
-fig.savefig('figures/gignrg_degree.pdf', dpi=500, bbox_inches='tight', pad_inches=0)
+fig.savefig('figures/gigcnr_degree.pdf', dpi=500, bbox_inches='tight', pad_inches=0)
